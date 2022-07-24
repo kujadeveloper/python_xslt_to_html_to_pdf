@@ -5,10 +5,11 @@ import io
 
 
 class toPdf():
-# configuring pdfkit to point to our installation of wkhtmltopdf  
+# configuring pdfkit to point to our installation of wkhtmltopdf 
     options = {
         'margin-top': '0mm',
-        'page-size': 'A5',
+        'page-height': 0,
+        'page-width': 0,
         'orientation':'Landscape',
         'encoding': "UTF-8"
     }
@@ -16,6 +17,14 @@ class toPdf():
 
 
     HERE = os.path.dirname(__file__)
+
+    def __init__(self,height,width,potrait):
+        self.options['page-height'] = height
+        self.options['page-width'] = width
+        self.options['orientation'] = potrait
+
+        print(self.options)
+
 
     def layout(self,src_path, dst_path):
         # load the XSL
