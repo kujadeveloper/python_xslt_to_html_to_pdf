@@ -12,7 +12,7 @@ from toPdf import toPdf
 class ThreatClass(QThread):
 	any_signal = QtCore.pyqtSignal(str)
 
-	def __init__(self, parent=None, index='', path='',out='',height=0,width=0,potrait='Landscape'):
+	def __init__(self, parent=None, index='', path='',out='',height=0,width=0,potrait='Landscape',topmargin=70):
 		super(ThreatClass, self).__init__(parent)
 		self.index = index
 		self.is_running = True
@@ -21,20 +21,23 @@ class ThreatClass(QThread):
 		self.height = height
 		self.width = width
 		self.potrait = potrait
+		self.topmargin = topmargin
 	
 	def run(self):
 		print(self.width)
 		print(self.height)
-		pdf = toPdf(self.height,self.width,self.potrait)
+		pdf = toPdf(self.height,self.width,self.potrait,self.topmargin)
 		f = []
 		for (dirpath, dirnames, filenames) in walk(self.inputFolderPath):
 			self.any_signal.emit('<br>'+str(len(filenames))+" Dosyalar işlenmek için hazırlanıyor...")
+			i = 2
 			for file in filenames:
 				splt = file.split('.')
 				if 'xslt'==splt[len(splt)-1]:
 					self.any_signal.emit('<br>'+file+' Dosya işleniyor.')
 					pth = dirpath+'/'+file
-					pdf.main(pth,self.out,file)
+					pdf.main(pth,self.out,file,i)
+					i = i+1
 				
 
 		
@@ -55,6 +58,7 @@ class MyApp(QWidget):
 		window.pushButton_2.clicked.connect(self.stoptask)
 		window.spinBox.setValue(210)
 		window.spinBox_2.setValue(297)
+		window.spinBox_3.setValue(70)
 
 		window.comboBox_2.currentTextChanged.connect(self.on_combobox_changed)
 		window.comboBox_3.currentTextChanged.connect(self.on_potrait_changed)
@@ -67,6 +71,7 @@ class MyApp(QWidget):
 		self.inputFolderOut = ''
 		self.spinBox = window.spinBox
 		self.spinBox_2 = window.spinBox_2
+		self.spinBox_3 = window.spinBox_3
 		self.potrait = 'Landscape'
 
 		self.logWrite('<b>Select Folder</b>')
@@ -102,7 +107,7 @@ class MyApp(QWidget):
 		else:
 			self.pushButton.setEnabled(False)
 			self.logWrite('<br>Progress started. Pls wait...')
-			self.p = ThreatClass(parent=None,index='',path=self.inputFolderPath,out=self.inputFolderOut,height=self.spinBox_2.value(),width=self.spinBox.value(),potrait=self.potrait)
+			self.p = ThreatClass(parent=None,index='',path=self.inputFolderPath,out=self.inputFolderOut,height=self.spinBox_2.value(),width=self.spinBox.value(),potrait=self.potrait,topmargin=self.spinBox_3.value())
 			self.p.start()
 			self.p.any_signal.connect(self.logWrite)
 
